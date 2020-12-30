@@ -18,6 +18,5 @@ public class ItemVotacao {
 	
 	public void vote() {
 		this.contagem++;
-		this._rev = null;
 	}
 }
