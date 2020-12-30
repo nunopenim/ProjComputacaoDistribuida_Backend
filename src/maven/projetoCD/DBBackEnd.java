@@ -1,29 +1,50 @@
 package maven.projetoCD;
 
-import java.util.List;
-
 public class DBBackEnd {
-	static int counter;
+	static IDGen dbcounter;
 	static DBManager manager; //"votacoes"
 	
-	public static void startDB() {
+	private boolean saveCounter() { //autosave to DB
+		return manager.updateItem(dbcounter);
+	}
+	
+	// Public stuff, the API per se
+	
+	public void startDB() {
+		manager.connect();
 		boolean present = manager.nameExists();
 		manager.initConnection();
 		if (!present) {
-			counter = 0;
-			IDGen dbcounter = new IDGen(counter);
+			dbcounter = new IDGen(0);
 			manager.addItem(dbcounter);
 		}
 		else {
-			IDGen dbcounter = (IDGen) manager.findObj(IDGen.class, "0");
-			counter = dbcounter.counterValue;
+			dbcounter = (IDGen) manager.findObj(IDGen.class, "0");
 		}
 	}
 	
-	public static void main(String[] args) { //test main
-		manager = new DBManager("votacoes");
-		manager.connect();
-		startDB();
+	public void addItemToVoteDB(String name) {
+		ItemVotacao toAdd = new ItemVotacao(dbcounter.idGenerator(), name);
+		saveCounter();
+		manager.addItem(toAdd);
+	}
+	
+	public boolean removeItemFromVoteDB(String id) {
+		ItemVotacao toRemove = (ItemVotacao) manager.findObj(ItemVotacao.class, id);
+		if (toRemove != null) {
+			manager.removeItem(toRemove);
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean voteInItem(String id) {
+		ItemVotacao item = (ItemVotacao) manager.findObj(ItemVotacao.class, id);
+		if (item == null) {
+			return false;
+		}
+		item.vote();
+		return manager.updateItem(item);
 	}
 	
 }
