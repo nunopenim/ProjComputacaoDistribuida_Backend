@@ -1,5 +1,9 @@
 package maven.projetoCD;
 
+/* How stuff works ID-wise:
+ * ID: 0 -> Gerador de IDs
+ */
+
 public class DBBackEnd {
 	static IDGen dbcounter;
 	static DBManager manager; //"votacoes"
@@ -15,7 +19,7 @@ public class DBBackEnd {
 		boolean present = manager.nameExists();
 		manager.initConnection();
 		if (!present) {
-			dbcounter = new IDGen(0);
+			dbcounter = new IDGen(0, -10);
 			manager.addItem(dbcounter);
 		}
 		else {
