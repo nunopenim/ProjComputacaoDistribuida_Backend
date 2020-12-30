@@ -1,4 +1,4 @@
-package maven.example.project;
+package maven.projetoCD;
 
 
 import java.io.IOException;
