@@ -166,13 +166,18 @@ public class LDAPUtils {
 		cursor.clear();
 	}
 	
-	public static void testSearch(String dn) throws Exception {
-	    EntryCursor cursor = connection.search( dn, "(objectclass=*)", SearchScope.ONELEVEL );
+	public static String testSearch(String dn) throws Exception {
+	    String finalStr = null;
+		EntryCursor cursor = connection.search( dn, "(objectclass=*)", SearchScope.ONELEVEL );
 	    for ( Entry entry : cursor ){
+	    	if (finalStr == null) {
+	    		finalStr = "";
+	    	}
 	        //assertNotNull( entry );
-	        System.out.println( entry );
+	        finalStr += entry + "/n";
 	    }
 	    cursor.close();
+	    return finalStr;
 	}
 
 }

@@ -11,8 +11,13 @@ public class AuthManager {
 		return LDAPUtils.auth(session.getSession(), session.getPW());
 	}
 	
-	public void search() {
-		//TODO
+	public String search(String dn) {
+		try {
+			return LDAPUtils.testSearch(dn);
+		}
+		catch (Exception e) {
+			return null;
+		}
 	}
 	
 	public LoginSession createSession(String user_id, String user_pw, boolean admin) {
