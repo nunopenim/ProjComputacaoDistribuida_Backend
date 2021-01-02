@@ -18,6 +18,7 @@ public class DBBackEnd {
 	// Public stuff, the API per se
 	
 	public void startDB() {
+		manager = new DBManager("votacoes");
 		manager.connect();
 		boolean present = manager.nameExists();
 		manager.initConnection();
@@ -44,8 +45,6 @@ public class DBBackEnd {
 		}
 		return false;
 	}
-	
-	
 	
 	public boolean voteInItem(String id) {
 		ItemVotacao item = (ItemVotacao) manager.findObj(ItemVotacao.class, id);

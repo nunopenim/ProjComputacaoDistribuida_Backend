@@ -14,6 +14,10 @@ public class Backend implements RMI_Interface{
 	}
 	
 	public static void main(String args[]) {
+		AuthManager auther = new AuthManager();
+		DBBackEnd dbbackend = new DBBackEnd();
+		
+		//Listener
 		try {
 			java.rmi.registry.LocateRegistry.createRegistry(1099);
 	        System.out.println("RMI registry ready.");
