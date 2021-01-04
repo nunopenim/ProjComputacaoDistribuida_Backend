@@ -7,4 +7,5 @@ import java.rmi.RemoteException;
 
 public interface RMI_Interface extends Remote{
 	String testFunc() throws RemoteException;
+	boolean[] authenticator(String uid, String pw) throws RemoteException;
 }
