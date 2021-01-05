@@ -3,13 +3,39 @@ package maven.projetoCD;
 public class IDGen {
 	private String _id;
 	private String _rev = null;
-	private int counterValue;
-	private int userIDGen;
+	public int counterValue;
+	public int userIDGen;
+	public int startTime;
+	public int stopTime;
+	public int voteCount;
 	
-	public IDGen(int val, int userVal) {
+	public int getStartTime() {
+		return startTime;
+	}
+	
+	public int getStopTime() {
+		return stopTime;
+	}
+	public void setStartTime(int a) {
+		startTime = a;
+	}
+	public void setStopTime(int a) {
+		stopTime = a;
+	}
+	public int getVoteCount() {
+		return voteCount;
+	}
+	public void incVoteCount() {
+		voteCount++;
+	}
+	
+	public IDGen(int val, int userVal, int startTime, int stopTime, int voteCount) {
 		this._id = "0";
 		this.counterValue = val;
 		this.userIDGen = userVal;
+		this.startTime = startTime;
+		this.stopTime = stopTime;
+		this.voteCount = voteCount;
 	}
 	
 	public String idGenerator() {
@@ -18,9 +44,8 @@ public class IDGen {
 	}
 	
 	public String userIDGenerator() {
-		String value = "" + userIDGen;
 		userIDGen--;
-		return value;
+		return "" + userIDGen;
 	}
 	
 }

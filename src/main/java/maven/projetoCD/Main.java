@@ -4,14 +4,19 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class Main implements RMI_Interface{
 	
-	DBBackEnd dbbackend = new DBBackEnd();
+	// Internal use only
 	
-	public Main() {
-		dbbackend = new DBBackEnd();
+	private boolean voteWrapper(String uid) {
+		return DBBackEnd.updateVoteStatus(uid);
 	}
+	
+	
+	// RMI-able funcs
 	
 	public String testFunc() {
 		return "Backend Operational";
@@ -45,8 +50,51 @@ public class Main implements RMI_Interface{
 		AuthManager.disconnect();
 		return response;
 	}
+
+	public int getTotalDeVotos() {
+		return DBBackEnd.totalVotos();
+	}
+	
+	public String listarItensEmVotacao() {
+		ArrayList<String> votingItems = DBBackEnd.getAllVotingItems();
+		String retString = "";
+		for (String s : votingItems) {
+			String[] components = s.split(Pattern.quote("|"));
+			retString += "(" + components[0] + ") " + components[1] + "|";
+		}
+		return retString;
+	}
+	
+	public String obterItem(String id) {
+		return DBBackEnd.getVotingItem(id);
+	}
+	
+	public boolean jaVotou(String uid) {
+		return DBBackEnd.hasVoted(uid);
+	}
+	
+	public boolean votar(String uid, String item_id) {
+		if (!voteWrapper(uid)) { //user nao existe ou falha a mudar para true
+			return false;
+		}
+		if (DBBackEnd.canThisVote(uid)) {
+			return DBBackEnd.voteInItem(item_id);
+		}
+		return false;
+	}
+	
+	public boolean addUserToVoters(String ldapID) {
+		try {
+			DBBackEnd.addUserToVoteDB(ldapID);
+			return true;
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
 	
 	public static void main(String args[]) {
+		DBBackEnd.startDB();
 		//Listener
 		try {
 			java.rmi.registry.LocateRegistry.createRegistry(1099);
