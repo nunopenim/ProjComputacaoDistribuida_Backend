@@ -4,6 +4,7 @@ import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
@@ -15,6 +16,9 @@ public class Main implements RMI_Interface{
 		return DBBackEnd.updateVoteStatus(uid);
 	}
 	
+	private long currentTimeSeconds() {
+		return Instant.now().getEpochSecond();
+	}
 	
 	// RMI-able funcs
 	
@@ -84,6 +88,9 @@ public class Main implements RMI_Interface{
 	}
 	
 	public boolean addUserToVoters(String ldapID) {
+		if (DBBackEnd.userExists(ldapID)) {
+			return false;
+		}
 		try {
 			DBBackEnd.addUserToVoteDB(ldapID);
 			return true;
@@ -91,6 +98,95 @@ public class Main implements RMI_Interface{
 		catch (Exception e) {
 			return false;
 		}
+	}
+	
+	public boolean removeUserFromVoters(String ldapID) {
+		try {
+			boolean a = DBBackEnd.removeUserFromVoteDB(ldapID);
+			return a;
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+	
+	public String listarResultados() {
+		String retString = "";
+		int totalDeVotos = DBBackEnd.totalVotos();
+		ArrayList<String> allItems = DBBackEnd.getAllVotingItems();
+		for (String s : allItems) {
+			String strToAdd = "";
+			String[] parts = s.split(Pattern.quote("|"));
+			strToAdd += "(" + parts[0] +") " + parts[1] + " - ";
+			float percent = ((float)(Integer.parseInt(parts[2])/ (float) totalDeVotos)) * 100;
+			strToAdd += String.format("%.02f", percent);
+			retString += strToAdd + "%|";
+		}
+		return retString;
+	}
+	
+	public boolean hasStarted() {
+		if (DBBackEnd.getStartTime() <= currentTimeSeconds()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public boolean hasEnded() {
+		if (DBBackEnd.getStartTime() + DBBackEnd.getStopTime() <= currentTimeSeconds()) {
+			return true;
+		}
+		return false;
+	}
+	
+	public long startTime() {
+		return DBBackEnd.getStartTime();
+	}
+	
+	public long sessionLength() {
+		return DBBackEnd.getStopTime();
+	}
+	
+	public boolean setStarting(long value) {
+		return DBBackEnd.setStartTime(value);
+	}
+	
+	public boolean setLength(long value) {
+		return DBBackEnd.setStopTime(value);
+	}
+	
+	public String getAllSessionVoters() {
+		ArrayList<Votante> voters = DBBackEnd.getAllVoters();
+		String retS = "";
+		for (Votante v : voters) {
+			if(v.hasVoted()) {
+				LoginSession martelada = AuthManager.createSession(v.getLdapId(), "0", false);
+				String name = AuthManager.getName(martelada);
+				String params = v.getLdapId()+ " " + name + "|";
+				retS += params;
+			}
+		}
+		return retS;
+	}
+	
+	public String getAllVoters() {
+		ArrayList<Votante> voters = DBBackEnd.getAllVoters();
+		String retS = "";
+		for (Votante v : voters) {
+			LoginSession martelada = AuthManager.createSession(v.getLdapId(), "0", false);
+			String name = AuthManager.getName(martelada);
+			String params = v.getLdapId()+ " " + name + "|";
+			retS += params;
+		}
+		return retS;
+	}
+	
+	public String winningItem() {
+		String item = DBBackEnd.winningItem();
+		String retString = "";
+		String[] components = item.split(Pattern.quote("|"));
+		retString += "(" + components[0] + ") " + components[1];  
+		return retString;
 	}
 	
 	public static void main(String args[]) {

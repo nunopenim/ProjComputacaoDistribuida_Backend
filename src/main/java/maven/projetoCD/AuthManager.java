@@ -7,6 +7,10 @@ public class AuthManager {
 		return LDAPUtils.validDn(session.getSession());
 	}
 	
+	public static String getName(LoginSession session) {
+		return LDAPUtils.printDnAttributes(session.getSession());
+	}
+	
 	public static boolean authenticate(LoginSession session) {
 		return LDAPUtils.auth(session.getSession(), session.getPW());
 	}

@@ -5,21 +5,21 @@ public class IDGen {
 	private String _rev = null;
 	public int counterValue;
 	public int userIDGen;
-	public int startTime;
-	public int stopTime;
+	public long startTime;
+	public long stopTime;
 	public int voteCount;
 	
-	public int getStartTime() {
+	public long getStartTime() {
 		return startTime;
 	}
 	
-	public int getStopTime() {
+	public long getStopTime() {
 		return stopTime;
 	}
-	public void setStartTime(int a) {
+	public void setStartTime(long a) {
 		startTime = a;
 	}
-	public void setStopTime(int a) {
+	public void setStopTime(long a) {
 		stopTime = a;
 	}
 	public int getVoteCount() {
@@ -29,7 +29,7 @@ public class IDGen {
 		voteCount++;
 	}
 	
-	public IDGen(int val, int userVal, int startTime, int stopTime, int voteCount) {
+	public IDGen(int val, int userVal, long startTime, long stopTime, int voteCount) {
 		this._id = "0";
 		this.counterValue = val;
 		this.userIDGen = userVal;

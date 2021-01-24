@@ -14,4 +14,15 @@ public interface RMI_Interface extends Remote{
 	String obterItem(String id) throws RemoteException;
 	boolean jaVotou(String uid) throws RemoteException;
 	boolean addUserToVoters(String ldapID) throws RemoteException;
+	String listarResultados() throws RemoteException;
+	boolean hasStarted() throws RemoteException;
+	boolean hasEnded() throws RemoteException;
+	long startTime() throws RemoteException;
+	long sessionLength() throws RemoteException;
+	boolean setStarting(long value) throws RemoteException;
+	boolean setLength(long value) throws RemoteException;
+	String winningItem() throws RemoteException;
+	boolean removeUserFromVoters(String ldapID) throws RemoteException;
+	String getAllSessionVoters() throws RemoteException;
+	String getAllVoters() throws RemoteException;
 }

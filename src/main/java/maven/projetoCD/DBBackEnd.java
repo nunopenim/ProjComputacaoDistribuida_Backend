@@ -12,8 +12,14 @@ public class DBBackEnd {
 	static IDGen dbcounter;
 	static DBManager manager; //"votacoes"
 	
-	private static boolean saveCounter() { //autosave to DB
+	private static boolean saveTheCounter() { //autosave to DB
 		return manager.updateItem(dbcounter);
+	}
+	
+	private static boolean saveCounter() {
+		boolean result = saveTheCounter();
+		dbcounter = (IDGen) manager.findObj(IDGen.class, "0"); //reload
+		return result;
 	}
 	
 	// Public stuff, the API per se
@@ -38,10 +44,39 @@ public class DBBackEnd {
 		saveCounter();
 	}
 	
+	public static boolean userExists(String ldapID) {
+		ArrayList<Votante> voters = getAllVoters();
+		for (Votante v : voters) {
+			if (v.getLdapId().equals(ldapID)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public static void addUserToVoteDB(String ldapID) {
-		Votante toAdd = new Votante(dbcounter.userIDGenerator(), ldapID);
-		manager.addItem(toAdd);
+		if (!userExists(ldapID)) {
+			Votante toAdd = new Votante(dbcounter.userIDGenerator(), ldapID);
+			manager.addItem(toAdd);
+		}
 		saveCounter();
+	}
+	
+	public static boolean removeUserFromVoteDB(String ldapID) {
+		Votante v = null;
+		if (userExists(ldapID)) {
+			for (int i = -1; i >= dbcounter.userIDGen; i--) {
+				v = (Votante) manager.findObj(Votante.class, "" + i);
+				if (v != null) {
+					if (ldapID.equals(v.getLdapId())) {
+						dbcounter.userIDGen--;
+						saveCounter();
+						return manager.removeItem(v);
+					}
+				}
+			}
+		}
+		return false;
 	}
 	
 	public static boolean removeItemFromVoteDB(String id) {
@@ -61,6 +96,19 @@ public class DBBackEnd {
 			retList.add(vData);
 		}
 		return retList;
+	}
+	
+	public static String winningItem() {
+		int previousCount = -1;
+		String retString = null;
+		for (int i=1; i <= dbcounter.counterValue; i++) {
+			ItemVotacao v = (ItemVotacao) manager.findObj(ItemVotacao.class, "" + i);
+			if (v.contagem > previousCount) {
+				retString = v.getId() + "|" + v.nome + "|" + v.contagem;
+				previousCount = v.contagem;
+			}
+		}
+		return retString;
 	}
 	
 	public static ArrayList<Votante> getAllVoters() {
@@ -124,10 +172,35 @@ public class DBBackEnd {
 		if (item == null) {
 			return false;
 		}
-		dbcounter.incVoteCount();
-		item.vote();
-		saveCounter();
-		return manager.updateItem(item);
+		dbcounter.voteCount++;
+		boolean counterOK = saveCounter();
+		if (counterOK) {
+			item.vote();
+			return manager.updateItem(item);
+		}
+		return false;
+	}
+	
+	public static long getStartTime() {
+		dbcounter = (IDGen) manager.findObj(IDGen.class, "0");
+		return dbcounter.startTime;
+	}
+	
+	public static long getStopTime() {
+		dbcounter = (IDGen) manager.findObj(IDGen.class, "0");
+		return dbcounter.stopTime;
+	}
+	
+	public static boolean setStartTime(long val) {
+		dbcounter = (IDGen) manager.findObj(IDGen.class, "0");
+		dbcounter.startTime = val;
+		return saveCounter();
+	}
+	
+	public static boolean setStopTime(long val) {
+		dbcounter = (IDGen) manager.findObj(IDGen.class, "0");
+		dbcounter.stopTime = val;
+		return saveCounter();
 	}
 	
 }

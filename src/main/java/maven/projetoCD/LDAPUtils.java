@@ -151,19 +151,19 @@ public class LDAPUtils {
 		return true;
 	}
 
-	public static void printDnAttributes(String dn) throws LdapException {
+	public static String printDnAttributes(String dn) {
+		String name= null;
 		Dn objectDn = null;
 		Entry cursor = null;
 		try {
 			objectDn = new Dn(dn);
 			cursor = connection.lookup(objectDn);
+			name = cursor.get("cn").getString();
 		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		for (Attribute entry : cursor){
-			System.out.println(entry);
+			return null;
 		}
 		cursor.clear();
+		return name;
 	}
 	
 	public static String testSearch(String dn) throws Exception {
